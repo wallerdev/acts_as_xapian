@@ -153,6 +153,10 @@ Options may include:
 database
 * :if, either an attribute or a function which if returns false means the
 object isn't indexed
+* :update_triggers, an array of attributes that will result in a new job
+being created when changed
+e.g. :update_triggers => [ :title, :body ] would tell xapian only to create
+a new update job when the title or body was changed
 
 2. Generate a database migration to create the ActsAsXapianJob model:
 

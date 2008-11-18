@@ -660,15 +660,17 @@ module ActsAsXapian
 
         # Used to mark changes needed by batch indexer
         def xapian_mark_needs_index
-            model = self.class.base_class.to_s
-            model_id = self.id
-            ActiveRecord::Base.transaction do
-                found = ActsAsXapianJob.delete_all([ "model = ? and model_id = ?", model, model_id])
-                job = ActsAsXapianJob.new
-                job.model = model
-                job.model_id = model_id
-                job.action = 'update'
-                job.save!
+            if !xapian_options[:update_triggers] || xapian_options[:update_triggers].map(&:to_s).any? { |t| changed.include? t }              
+                model = self.class.base_class.to_s
+                model_id = self.id
+                ActiveRecord::Base.transaction do
+                    found = ActsAsXapianJob.delete_all([ "model = ? and model_id = ?", model, model_id])
+                    job = ActsAsXapianJob.new
+                    job.model = model
+                    job.model_id = model_id
+                    job.action = 'update'
+                    job.save!
+                end
             end
         end
         def xapian_mark_needs_destroy
